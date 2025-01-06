@@ -14,7 +14,7 @@ let
   hs810Pkgs = import ./packages/ghc8_10 { inherit pkgs lib; };
 
   # Haskell packages that require ghc 9.2
-  hs92Pkgs = import ./packages/ghc9_2 { inherit pkgs lib; };
+  hs92Pkgs = import ./packages/ghc9_2 { inherit pkgs lib makeWrapper nodejs fetchElmDeps; };
 
   # Patched, originally npm-downloaded, packages
   patchedNodePkgs = import ./packages/node { inherit pkgs lib nodejs makeWrapper; };

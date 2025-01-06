@@ -1,4 +1,9 @@
-{ pkgs, lib }:
+{ pkgs
+, lib
+, makeWrapper
+, nodejs
+, fetchElmDeps
+}:
 
 self:
 pkgs.haskell.packages.ghc92.override {
@@ -12,27 +17,54 @@ pkgs.haskell.packages.ghc92.override {
           `package/nix/build.sh`
         */
         elm-format = justStaticExecutables (
-          overrideCabal (drv: {
-            jailbreak = true;
-            doHaddock = false;
-            postPatch = ''
-              mkdir -p ./generated
-              cat <<EOHS > ./generated/Build_elm_format.hs
-              module Build_elm_format where
-              gitDescribe :: String
-              gitDescribe = "${drv.version}"
-              EOHS
+          overrideCabal
+            (drv: {
+              jailbreak = true;
+              doHaddock = false;
+              postPatch = ''
+                mkdir -p ./generated
+                cat <<EOHS > ./generated/Build_elm_format.hs
+                module Build_elm_format where
+                gitDescribe :: String
+                gitDescribe = "${drv.version}"
+                EOHS
+              '';
+
+              description = "Formats Elm source code according to a standard set of rules based on the official Elm Style Guide";
+              homepage = "https://github.com/avh4/elm-format";
+              license = lib.licenses.bsd3;
+              maintainers = with lib.maintainers; [
+                avh4
+                turbomack
+              ];
+            })
+            (self.callPackage ./elm-format/elm-format.nix { })
+        );
+
+        lamdera = overrideCabal
+          (drv: {
+            # sadly with parallelism most of the time breaks compilation
+            enableParallelBuilding = false;
+            preConfigure = fetchElmDeps {
+              elmPackages = (import ../elm-srcs.nix);
+              elmVersion = drv.version;
+              registryDat = ../../registry.dat;
+            };
+            buildTools = drv.buildTools or [ ] ++ [ makeWrapper ];
+            postInstall = ''
+              wrapProgram $out/bin/elm \
+                --prefix PATH ':' ${lib.makeBinPath [ nodejs ]}
             '';
 
-            description = "Formats Elm source code according to a standard set of rules based on the official Elm Style Guide";
-            homepage = "https://github.com/avh4/elm-format";
+            description = "Delightful platform for full-stack Elm web apps.";
+            homepage = "https://lamdera.com/";
             license = lib.licenses.bsd3;
             maintainers = with lib.maintainers; [
-              avh4
+              domenkozar
               turbomack
             ];
-          }) (self.callPackage ./elm-format/elm-format.nix { })
-        );
+          })
+          (self.callPackage ./lamdera { });
       };
 
       fixHaddock = overrideCabal (_: {
