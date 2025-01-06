@@ -50,7 +50,5 @@ lib.makeScope pkgs.newScope
       elm-test-rs = callPackage ./packages/elm-test-rs { };
 
       elm-test = callPackage ./packages/elm-test { };
-
-      lamdera = callPackage ./packages/lamdera { };
     })
   )
