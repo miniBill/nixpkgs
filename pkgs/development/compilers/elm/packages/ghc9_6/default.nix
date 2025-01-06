@@ -80,7 +80,11 @@ pkgs.haskell.packages.ghc96.override {
 
       elm-format-lib = self.callPackage ../ghc9_2/elm-format/elm-format-lib.nix { };
 
-      elm-format-markdown = self.callPackage ../ghc9_2/elm-format/elm-format-markdown.nix { };
+      elm-format-markdown = overrideCabal
+        (drv: {
+          jailbreak = true;
+        })
+        (self.callPackage ../ghc9_2/elm-format/elm-format-markdown.nix { });
 
       elm-format-test-lib = self.callPackage ../ghc9_2/elm-format/elm-format-test-lib.nix { };
 
