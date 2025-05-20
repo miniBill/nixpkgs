@@ -75,6 +75,7 @@ lib.makeScope pkgs.newScope (
     // lib.optionalAttrs config.allowAliases {
       create-elm-app = throw "'elmPackages.create-elm-app' has not had a release since December 2020, so it was removed."; # Added 2025-11-15
       elm-pages = throw "'elmPackages.elm-pages' has been removed, as it was broken in nixpkgs and was not maintained."; # Added 2025-11-15
+      lamdera = callPackage ./packages/lamdera { };
     }
   )
 )
